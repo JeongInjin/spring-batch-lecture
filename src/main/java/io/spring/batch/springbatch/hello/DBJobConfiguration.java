@@ -20,7 +20,7 @@ public class DBJobConfiguration {
         this.stepBuilderFactory = stepBuilderFactory;
     }
 
-    @Bean
+//    @Bean
     public Job job() {
         return jobBuilderFactory.get("job")
                 .start(step1())
