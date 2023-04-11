@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class StepExecutionConfiguration {
+public class StepContributionConfiguration {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -21,7 +21,6 @@ public class StepExecutionConfiguration {
         return jobBuilderFactory.get("job")
                 .start(step1())
                 .next(step2())
-                .next(step3())
                 .build();
     }
 
@@ -45,15 +44,4 @@ public class StepExecutionConfiguration {
                 })
                 .build();
     }
-
-    @Bean
-    public Step step3() {
-        return stepBuilderFactory.get("step3")
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println("step3 was executed");
-                    return RepeatStatus.FINISHED;
-                })
-                .build();
-    }
-
 }
