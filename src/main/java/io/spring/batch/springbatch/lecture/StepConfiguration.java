@@ -1,4 +1,4 @@
-package io.spring.batch.springbatch.lecture.jobexecution;
+package io.spring.batch.springbatch.lecture;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @RequiredArgsConstructor
-public class JobExecutionConfiguration {
+public class StepConfiguration {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
@@ -27,10 +27,7 @@ public class JobExecutionConfiguration {
     @Bean
     public Step step1() {
         return stepBuilderFactory.get("step1")
-                .tasklet((contribution, chunkContext) -> {
-                    System.out.println("step1 was executed");
-                    return RepeatStatus.FINISHED;
-                })
+                .tasklet(new CustomTasklet())
                 .build();
     }
 
