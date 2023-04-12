@@ -33,9 +33,9 @@ spring:
       password: pass
       driver-class-name: com.mysql.cj.jdbc.Driver
   batch:
-    job:
-      names: ${job.name:NONE}
-      enabled: true
+#    job:
+#      names: ${job.name:NONE}
+#      enabled: false
     jdbc:
       initialize-schema: always
       table-prefix: BATCH_
