@@ -6,6 +6,8 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.flow.JobExecutionDecider;
+import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,42 +15,55 @@ import org.springframework.context.annotation.Configuration;
 // --job.name=batchJob name=user1 date=20230101
 @Configuration
 @RequiredArgsConstructor
-public class CustomExitStatusConfiguration {
+public class JobExecutionDeciderConfiguration {
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
     @Bean
-    public Job batchJob() {
+    public Job job() {
         return jobBuilderFactory.get("batchJob")
-                .start(step1())
-                .on("FAILED")
-                .to(step2())
-                .on("PASS")
-                .stop()
+                .incrementer(new RunIdIncrementer())
+                .start(step())
+                .next(decider())
+                .from(decider()).on("EVEN").to(evenStep())
+                .from(decider()).on("ODD").to(oddStep())
                 .end()
                 .build();
     }
 
     @Bean
-    public Step step1() {
-        return stepBuilderFactory.get("step1")
+    public JobExecutionDecider decider() {
+        return new CustomDecider();
+    }
+
+    @Bean
+    public Step step() {
+        return stepBuilderFactory.get("startStep")
                 .tasklet((contribution, chunkContext) -> {
-                    System.out.println("> > step1 has executed");
-                    contribution.setExitStatus(ExitStatus.FAILED);
+                    System.out.println("> > This is the start tasklet");
                     return RepeatStatus.FINISHED;
                 })
                 .build();
     }
 
     @Bean
-    public Step step2() {
-        return stepBuilderFactory.get("step2")
+    public Step evenStep() {
+        return stepBuilderFactory.get("evenStep")
                 .tasklet((contribution, chunkContext) -> {
-                    System.out.println("> > step2 has executed");
+                    System.out.println("> > evenStep has executed");
                     return RepeatStatus.FINISHED;
                 })
-                .listener(new PassCheckingListener())
+                .build();
+    }
+
+    @Bean
+    public Step oddStep() {
+        return stepBuilderFactory.get("oddStep")
+                .tasklet((contribution, chunkContext) -> {
+                    System.out.println("> > oddStep has executed");
+                    return RepeatStatus.FINISHED;
+                })
                 .build();
     }
 }
